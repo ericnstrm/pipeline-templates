@@ -40,15 +40,15 @@ jobs:
 
       - name: dotnet test
         if: env.RUN_TESTS == 'true'
-        run: dotnet test ${{ inputs.PROJECT_NAME }}.Tests.csproj  -c ${{ inputs.BUILD_CONFIGURATION }} --no-restore --verbosity normal
+        run: dotnet test ${{ inputs.PROJECT_NAME }}.Tests.csproj -c ${{ inputs.BUILD_CONFIGURATION }} --no-restore --verbosity normal
         working-directory: src/${{ inputs.PROJECT_NAME }}/Tests
 
       - name: dotnet build
-        run: dotnet build ${{ inputs.PROJECT_NAME }}.csproj  --no-restore -c ${{ inputs.BUILD_CONFIGURATION }}
+        run: dotnet build ${{ inputs.PROJECT_NAME }}.csproj --no-restore -c ${{ inputs.BUILD_CONFIGURATION }}
         working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: dotnet publish
-        run: dotnet publish ${{ inputs.PROJECT_NAME }}.csproj  --no-restore -c ${{ inputs.BUILD_CONFIGURATION }} --output ${{ env.ARTIFACTS_PATH }}/application
+        run: dotnet publish ${{ inputs.PROJECT_NAME }}.csproj --no-restore -c ${{ inputs.BUILD_CONFIGURATION }} --output ${{ env.ARTIFACTS_PATH }}/application
         working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: publish application artifact
