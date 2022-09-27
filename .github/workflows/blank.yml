@@ -16,7 +16,7 @@ on:
         type: boolean
 
 env:
-  ARTIFACTS_PATH: application
+  ARTIFACTS_PATH: artifacts
 
 jobs:
   dotnet:
@@ -48,7 +48,7 @@ jobs:
         working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: dotnet publish
-        run: dotnet publish ${{ inputs.PROJECT_NAME }}.csproj  --no-restore -c ${{ inputs.BUILD_CONFIGURATION }} --output /${{ env.ARTIFACTS_PATH }}
+        run: dotnet publish ${{ inputs.PROJECT_NAME }}.csproj  --no-restore -c ${{ inputs.BUILD_CONFIGURATION }} --output /${{ env.ARTIFACTS_PATH }}/application
         working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: publish application artifact
