@@ -1,0 +1,72 @@
+name: dotnet
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: hello
+  cancel-in-progress: false
+
+env:
+  SOURCE_PATH: source
+  ARTIFACTS_PATH: articats
+  CSPROJ_PATH:
+  DOCKERFILE_PATH: artifacts/Dockerfile
+
+jobs:
+  setup:
+    name: setup workflow
+    runs-on: [Linux]
+
+    steps:
+      - name: clean workspace
+        run: rm -rf *
+      - uses: actions/checkout@3
+        with:
+          path: ${{ env.SOURCE_PATH }}
+
+      - name: create folders
+        run: |
+          mkdir ${{env.ARTIFACTS_PATH }}
+          mkdir ${{env.ARTIFACTS_PATH }}/configurations
+          mkdir ${{env.ARTIFACTS_PATH }}/dockerfiles
+          mkdir ${{env.ARTIFACTS_PATH }}/files
+
+      - name: copy configuration files
+        run: cp ${{ env.SOURCEPATH }}/Configuration/* ${{ env.ARTIFACTS_PATH }}/configuration
+
+      - name: copy docker files
+        run: cp ${{ env.SOURCEPATH }}/Dockerfiles/* ${{ env.ARTIFACTS_PATH }}/dockerfiles
+
+  dotnet:
+    name: build and publish application
+    runs-on: [Linux]
+
+    steps:
+      - name: dotnet restore
+        run: |
+          dotnet restore --configuration ${{ env.BUILDCONFIGURATION }}
+        workspace: ${{ env.SOURCE_PATH }}
+
+      - name: dotnet test
+        run: |
+          dotnet test --configuration ${{ parameters.buildConfiguration }}--no-restore --verbosity normal
+
+      - name: dotnet build
+        run: |
+          dotnet build --no-restore --configuration ${{ parameters.buildConfiguration }}
+
+      - name: dotnet publish
+        run: |
+          dotnet publish --no-restore --self-contained --configuration ${{ parameters.buildConfiguration }} --runtime linux-x64 --output ${{ env.ARTIFACTS_PATH }}/application
+
+  docker:
+    name: build dockerimage
+    runs-on: [Linux]
+
+    steps:
+      - name: download artifact
+      - uses: actions/download-artifact@v2
+        with:
+          name: application
+          path: { { env.ARTIFACTS_PATH } }

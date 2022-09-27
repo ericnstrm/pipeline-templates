@@ -1,0 +1,71 @@
+parameters:
+  - name: projectToPublish
+    type: string
+  - name: buildConfiguration
+    type: string
+    default: "Release"
+
+jobs:
+  - job: BuildAndPublishProject
+    displayName: Build and publish project
+    workspace:
+      clean: all
+
+    steps:
+      - task: DotNetCoreCLI@2
+        displayName: dotnet restore
+        inputs:
+          command: restore
+          project: "**/*.csproj"
+          arguments: "--configuration ${{ parameters.buildConfiguration }}"
+
+      - task: DotNetCLI@2
+        displayName: dotnet build
+        inputs:
+          command: build
+          projects: "**/*.csproj"
+          arguments: "--configuration ${{ parameters.buildConfiguration }} --no-restore"
+
+      - task: replacetokens@4
+        displayName: replace tokens
+        inputs:
+          targetFiles: "**/appSettings.${{ parameters.environment }}.json"
+          encoding: "auto"
+          tokenPattern: "default"
+          writeBOM: true
+          actionOnMissin: "warn"
+          keepToken: false
+          actionOnNoFiles: "continue"
+          enableTransforms: false
+          useLegacyPattern: false
+          enableTelemetry: false
+
+      - task: DotNetCLI@2
+        displayName: dotnet test
+        inputs:
+          command: test
+          arguments: '--collect "Code Coverage" --configuration ${{ parameters.buildConfiguration }} --no-build --no-restore'
+          projects: |
+            **\*tests.csproj
+
+      - task: DotNetCLI@2
+        displayName: dotnet publish
+        inputs:
+          command: publish
+          publishWebProject: false
+          projects: ${{ parameters.projectToPublish }}
+          arguments: '--configuration ${{ parameters.buildConfiguration }} -o $(build.binariesdirectory)\published --runtime linux-x64'
+          zipAfterPublish: false
+          modifyOutputPath: false
+
+      - task: DeleteFiles@1
+        displayName: "delete files from binaries directory"
+        inputs:
+          SourceFolder: '$(build.binariesdirectory)\published'
+          Contents: '**\appsettings.*.json'
+
+      - task: PublishBuildArtifact@1
+        displayName: "publish application artifact"
+        inputs:
+          PathToPublish: '$(build.binariesdirectory)\published'
+          artifactName: application
