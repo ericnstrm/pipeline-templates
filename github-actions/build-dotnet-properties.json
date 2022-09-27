@@ -3,11 +3,6 @@
     "description": "Build and publish .NET workflow.",
     "iconName": "example-icon",
     "categories": [
-        ".NET"
-    ],
-    "filePatterns": [
-        "package.json$",
-        "^Dockerfile",
-        ".*\\.md$"
+        "ASP.NET"
     ]
 }
