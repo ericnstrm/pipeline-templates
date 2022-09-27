@@ -1,12 +1,22 @@
 name: dotnet
 
-on: [push]
+on: 
+  workflow_call:
+    inputs:
+      PROJECT_NAME:
+        required: true
+        type: string
+      BUILD_CONFIGURATION:
+        default: Release
+        required: false
+        type: string
+      RUN_TEST:
+        default: false
+        required: false
+        type: boolean
 
 env:
-  PROJECT_NAME: MinimalApi.Mediatr
-  DOCKERFILE_PATH: artifacts/Dockerfile
-  BUILD_CONFIGURATION: Release
-  RUN_TESTS: false
+  ARTIFACTS_PATH: application
 
 jobs:
   dotnet:
@@ -25,24 +35,24 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: dotnet restore
-        run: dotnet restore ${{ env.PROJECT_NAME }}.csproj
-        working-directory: src/${{ env.PROJECT_NAME }}
+        run: dotnet restore ${{ inputs.PROJECT_NAME }}.csproj
+        working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: dotnet test
         if: env.RUN_TESTS == 'true'
-        run: dotnet test ${{ env.PROJECT_NAME }}.Tests.csproj  -c ${{ env.BUILD_CONFIGURATION }} --no-restore --verbosity normal
-        working-directory: src/${{ env.PROJECT_NAME }}/Tests
+        run: dotnet test ${{ inputs.PROJECT_NAME }}.Tests.csproj  -c ${{ inputs.BUILD_CONFIGURATION }} --no-restore --verbosity normal
+        working-directory: src/${{ inputs.PROJECT_NAME }}/Tests
 
       - name: dotnet build
-        run: dotnet build ${{ env.PROJECT_NAME }}.csproj  --no-restore -c ${{ env.BUILD_CONFIGURATION }}
-        working-directory: src/${{ env.PROJECT_NAME }}
+        run: dotnet build ${{ inputs.PROJECT_NAME }}.csproj  --no-restore -c ${{ inputs.BUILD_CONFIGURATION }}
+        working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: dotnet publish
-        run: dotnet publish ${{ env.PROJECT_NAME }}.csproj  --no-restore -c ${{ env.BUILD_CONFIGURATION }} --output ${{ env.ARTIFACTS_PATH }}/application
-        working-directory: src/${{ env.PROJECT_NAME }}
+        run: dotnet publish ${{ inputs.PROJECT_NAME }}.csproj  --no-restore -c ${{ inputs.BUILD_CONFIGURATION }} --output /${{ env.ARTIFACTS_PATH }}
+        working-directory: src/${{ inputs.PROJECT_NAME }}
 
       - name: publish application artifact
         uses: actions/upload-artifact@v3
         with:
           name: app
-          path: src/${{ env.PROJECT_NAME }}/${{ env.ARTIFACTS_PATH }}/application
+          path: src/${{ inputs.PROJECT_NAME }}/${{ env.ARTIFACTS_PATH }}/application
