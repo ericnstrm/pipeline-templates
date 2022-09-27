@@ -1,72 +1,48 @@
 name: dotnet
 
-on:
-  workflow_dispatch:
-
-concurrency:
-  group: hello
-  cancel-in-progress: false
+on: [push]
 
 env:
-  SOURCE_PATH: source
-  ARTIFACTS_PATH: articats
-  CSPROJ_PATH:
+  PROJECT_NAME: MinimalApi.Mediatr
   DOCKERFILE_PATH: artifacts/Dockerfile
+  BUILD_CONFIGURATION: Release
+  RUN_TESTS: false
 
 jobs:
-  setup:
-    name: setup workflow
-    runs-on: [Linux]
-
-    steps:
-      - name: clean workspace
-        run: rm -rf *
-      - uses: actions/checkout@3
-        with:
-          path: ${{ env.SOURCE_PATH }}
-
-      - name: create folders
-        run: |
-          mkdir ${{env.ARTIFACTS_PATH }}
-          mkdir ${{env.ARTIFACTS_PATH }}/configurations
-          mkdir ${{env.ARTIFACTS_PATH }}/dockerfiles
-          mkdir ${{env.ARTIFACTS_PATH }}/files
-
-      - name: copy configuration files
-        run: cp ${{ env.SOURCEPATH }}/Configuration/* ${{ env.ARTIFACTS_PATH }}/configuration
-
-      - name: copy docker files
-        run: cp ${{ env.SOURCEPATH }}/Dockerfiles/* ${{ env.ARTIFACTS_PATH }}/dockerfiles
-
   dotnet:
     name: build and publish application
-    runs-on: [Linux]
+    runs-on: ubuntu-latest
 
     steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+
       - name: dotnet restore
-        run: |
-          dotnet restore --configuration ${{ env.BUILDCONFIGURATION }}
-        workspace: ${{ env.SOURCE_PATH }}
+        run: dotnet restore ${{ env.PROJECT_NAME }}.csproj
+        working-directory: src/${{ env.PROJECT_NAME }}
 
       - name: dotnet test
-        run: |
-          dotnet test --configuration ${{ parameters.buildConfiguration }}--no-restore --verbosity normal
+        if: env.RUN_TESTS == 'true'
+        run: dotnet test ${{ env.PROJECT_NAME }}.Tests.csproj  -c ${{ env.BUILD_CONFIGURATION }} --no-restore --verbosity normal
+        working-directory: src/${{ env.PROJECT_NAME }}/Tests
 
       - name: dotnet build
-        run: |
-          dotnet build --no-restore --configuration ${{ parameters.buildConfiguration }}
+        run: dotnet build ${{ env.PROJECT_NAME }}.csproj  --no-restore -c ${{ env.BUILD_CONFIGURATION }}
+        working-directory: src/${{ env.PROJECT_NAME }}
 
       - name: dotnet publish
-        run: |
-          dotnet publish --no-restore --self-contained --configuration ${{ parameters.buildConfiguration }} --runtime linux-x64 --output ${{ env.ARTIFACTS_PATH }}/application
+        run: dotnet publish ${{ env.PROJECT_NAME }}.csproj  --no-restore -c ${{ env.BUILD_CONFIGURATION }} --output ${{ env.ARTIFACTS_PATH }}/application
+        working-directory: src/${{ env.PROJECT_NAME }}
 
-  docker:
-    name: build dockerimage
-    runs-on: [Linux]
-
-    steps:
-      - name: download artifact
-      - uses: actions/download-artifact@v2
+      - name: publish application artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: application
-          path: { { env.ARTIFACTS_PATH } }
+          name: app
+          path: src/${{ env.PROJECT_NAME }}/${{ env.ARTIFACTS_PATH }}/application
