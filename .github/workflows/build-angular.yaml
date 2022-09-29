@@ -45,7 +45,7 @@ jobs:
       #  working-directory: src
         
       - name: angular test
-        run: npm run test --no-watch --no-progress --browsers=ChromeHeadlessCI | exit 1
+        run: npm run test --no-watch --no-progress | exit 1
         working-directory: src
         
       - name: angular build
