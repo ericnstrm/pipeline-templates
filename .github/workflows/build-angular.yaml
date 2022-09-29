@@ -51,6 +51,12 @@ jobs:
       - name: angular build
         run: npm run build --prod --output=${{ env.ARTIFACTS_PATH }}/application
         working-directory: src
+        
+      - name: publish application artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: ${{ env.ARTIFACTS_PATH }}/application
 
 
 
