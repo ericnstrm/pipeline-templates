@@ -6,6 +6,9 @@ on:
       PROJECT_NAME:
         required: true
         type: string
+        
+env:
+  ARTIFACTS_PATH: artifacts
       
 jobs:
   angular:
@@ -15,5 +18,39 @@ jobs:
     steps: 
       - name: checkout repo
         uses: actions/checkout@v2
+        
+      - name: cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+            
+      - name: install dependencies
+        if:
+          steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: npm ci
+        
+      - name: lint project
+        run: npm run lint
+        working-directory: src/${{ inputs.PROJECT_NAME }}
+        
+      - name: angular test
+        run: npm run test --prod
+        working-directory: src/${{ inputs.PROJECT_NAME }}
+        
+      - name: angular build
+        run: npm run build --prod --output=${{ env.ARTIFACTS_PATH }}/application
+        working-directory: src/${{ inputs.PROJECT_NAME }}
+
+
+
+
         
       
