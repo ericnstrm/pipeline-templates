@@ -42,15 +42,15 @@ jobs:
         
       - name: lint project
         run: npm run lint
-        working-directory: src/${{ inputs.PROJECT_NAME }}
+        working-directory: src
         
       - name: angular test
         run: npm run test --prod
-        working-directory: src/${{ inputs.PROJECT_NAME }}
+        working-directory: src
         
       - name: angular build
         run: npm run build --prod --output=${{ env.ARTIFACTS_PATH }}/application
-        working-directory: src/${{ inputs.PROJECT_NAME }}
+        working-directory: src
 
 
 
