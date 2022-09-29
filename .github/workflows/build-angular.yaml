@@ -19,9 +19,6 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v2
         
-      - name: check checkout
-        run: ls ${{ env.GITHUB_WORKSPACE }}
-        
       #- name: cache node modules
       #  id: cache-nodemodules
       #  uses: actions/cache@v2
@@ -52,11 +49,14 @@ jobs:
         run: npm run build --prod --output=${{ env.ARTIFACTS_PATH }}/application
         working-directory: src
         
+      - name: check build
+        run: ls src
+        
       - name: publish application artifact
         uses: actions/upload-artifact@v3
         with:
           name: app
-          path: ${{ env.ARTIFACTS_PATH }}/application
+          path: src/${{ env.ARTIFACTS_PATH }}/application
 
 
 
