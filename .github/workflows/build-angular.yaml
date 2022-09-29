@@ -6,9 +6,6 @@ on:
       PROJECT_NAME:
         required: true
         type: string
-        
-env:
-  ARTIFACTS_PATH: artifacts
       
 jobs:
   angular:
@@ -18,19 +15,6 @@ jobs:
     steps: 
       - name: checkout repo
         uses: actions/checkout@v2
-        
-      #- name: cache node modules
-      #  id: cache-nodemodules
-      #  uses: actions/cache@v2
-      #  env:
-      #    cache-name: cache-node-modules
-      #  with:
-      #    path: src/node_modules
-      #    key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      #    restore-keys: |
-      #      ${{ runner.os }}-build-${{ env.cache-name }}-
-      #      ${{ runner.os }}-build-
-      #      ${{ runner.os }}-
             
       - name: install dependencies
         if:
