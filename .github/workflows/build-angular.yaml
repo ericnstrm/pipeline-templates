@@ -49,21 +49,11 @@ jobs:
         run: npm run build --prod
         working-directory: src
         
-        
-      - name: check src
-        run: ls src
-        
-      - name: check dist
-        run: ls dist
-        
-      - name: check root
-        run: ls ${{ env.GITHUB_WORKSPACE }}
-        
-      #- name: publish application artifact
-      #  uses: actions/upload-artifact@v3
-      #  with:
-      #    name: app
-      #    path: src/${{ env.ARTIFACTS_PATH }}/application
+      - name: publish application artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: dist/${{ inputs.PROJECT_NAME }}
 
 
 
