@@ -40,9 +40,9 @@ jobs:
           steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
         
-      - name: lint project
-        run: npm run lint
-        working-directory: src
+      #- name: lint project
+      #  run: npm run lint
+      #  working-directory: src
         
       - name: angular test
         run: npm run test --prod
