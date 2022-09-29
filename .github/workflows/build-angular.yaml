@@ -36,19 +36,15 @@ jobs:
         if:
           steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
-        
-      #- name: lint project
-      #  run: npm run lint
-      #  working-directory: src
-        
-      - name: angular test
-        run: npm run test
-        working-directory: src
-        
+      
       - name: angular build
         run: npm run build --prod
         working-directory: src
         
+      - name: angular test
+        run: npm run test
+        working-directory: src      
+             
       - name: publish application artifact
         uses: actions/upload-artifact@v3
         with:
