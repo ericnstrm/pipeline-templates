@@ -1,0 +1,19 @@
+name: angular
+
+on: 
+  workflow_call:
+    inputs:
+      PROJECT_NAME:
+        required: true
+        type: string
+      
+jobs:
+  angular:
+    name: build and publish angular application
+    runs-on: ubuntu-latest
+    
+    steps: 
+      - name: checkout repo
+        uses: actions/checkout@v2
+        
+      
